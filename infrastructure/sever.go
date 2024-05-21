@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -70,7 +71,7 @@ func (srv *Server) Start() {
 	log.Info().Msg("Starting API cmd")
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal().Msgf("Could not listen on %s rv due to %s rv", srv.Addr, err.Error())
 		}
 	}()

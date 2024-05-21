@@ -1,8 +1,8 @@
 package middlewares_test
 
 import (
-	"backend_crudgo/infrastructure/kit/enum"
-	"backend_crudgo/infrastructure/middlewares"
+	"github.com/jnates/smartOshApi/infrastructure/kit/enum"
+	"github.com/jnates/smartOshApi/infrastructure/middlewares"
 	"net/http"
 	"net/http/httptest"
 	"os"

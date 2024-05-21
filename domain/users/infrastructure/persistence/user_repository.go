@@ -4,12 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/jnates/smartOshApi/domain/users/domain/model"
 	repoDomain "github.com/jnates/smartOshApi/domain/users/domain/repository"
 	"github.com/jnates/smartOshApi/infrastructure/database"
 	"github.com/jnates/smartOshApi/infrastructure/kit/enum"
 	response "github.com/jnates/smartOshApi/types"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -47,9 +50,9 @@ func (sr *sqlUserRepo) CreateUser(ctx context.Context, user *model.User) (*respo
 		}
 	}()
 
-	user.UserPassword = hashPassword(user.UserPassword)
-	row := stmt.QueryRowContext(ctx, &user.Name, &user.UserIdentifier, &user.Email,
-		&user.UserPassword, &user.UserTypeIdentifier)
+	user.Contrasena = hashPassword(user.Contrasena)
+	row := stmt.QueryRowContext(ctx, user.PersonaID, user.Nombre, user.Apellido, user.Telefono, user.Celular, user.Correo,
+		user.Usuario, user.Contrasena, user.SesionActiva, user.Direccion, user.ImagendFirma, user.Administrador)
 
 	if err = row.Scan(&idResult); !errors.Is(err, sql.ErrNoRows) {
 		return &response.CreateResponse{}, err
@@ -60,40 +63,47 @@ func (sr *sqlUserRepo) CreateUser(ctx context.Context, user *model.User) (*respo
 	}, nil
 }
 
-// LoginUser logs in a user by checking if their password is correct.
 func (sr *sqlUserRepo) LoginUser(ctx context.Context, user *model.User) (*response.GenericUserResponse, error) {
+	var credential string
 	stmt, err := sr.Conn.DB.PrepareContext(ctx, SelectLoginUser)
 	if err != nil {
-		return &response.GenericUserResponse{}, err
+		return nil, fmt.Errorf("error preparing SQL statement: %w", err)
+	}
+	defer func(stmt *sql.Stmt) {
+		if err := stmt.Close(); err != nil {
+			log.Error().Msgf("Could not close statement: %v", err)
+		}
+	}(stmt)
+
+	if strings.EqualFold(user.Correo, user.Celular) {
+		return nil, fmt.Errorf("you must provide an email or phone number")
+	} else if user.Correo != enum.EmptyString {
+		credential = user.Correo
+	} else {
+		credential = user.Celular
 	}
 
-	defer func() {
-		err = stmt.Close()
-		if err != nil {
-			log.Error().Msgf("Could not close testament : [error] %s", err.Error())
-		}
-	}()
-
-	row := stmt.QueryRowContext(ctx, user.Name)
+	row := stmt.QueryRowContext(ctx, credential, credential)
 	currentUser := &model.User{}
 
-	if err = row.Scan(&currentUser.UserID, &currentUser.Name, &currentUser.Email, &currentUser.UserIdentifier,
-		&currentUser.UserPassword, &currentUser.UserTypeIdentifier); err != nil {
-		return &response.GenericUserResponse{Error: err.Error()}, err
+	if err := row.Scan(&currentUser.Correo, &currentUser.Contrasena, &currentUser.Celular); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &response.GenericUserResponse{Error: "user not found"}, nil
+		}
+		return nil, fmt.Errorf("error scanning row: %w", err)
 	}
 
-	if err = bcrypt.CompareHashAndPassword([]byte(currentUser.UserPassword), []byte(user.UserPassword)); err != nil {
-		return &response.GenericUserResponse{Error: "Password incorrect"}, nil
+	if err := bcrypt.CompareHashAndPassword([]byte(currentUser.Contrasena), []byte(user.Contrasena)); err != nil {
+		return &response.GenericUserResponse{Error: "Incorrect password"}, nil
 	}
 
-	token, err := generateToken(currentUser.UserID)
+	token, err := generateToken(strconv.Itoa(currentUser.PersonaID))
 	if err != nil {
-		log.Error().Msgf("Could not generate token: [error] %s", err.Error())
-		return nil, err
+		return nil, fmt.Errorf("error generating token: %w", err)
 	}
 
 	return &response.GenericUserResponse{
-		Message: "Success",
+		Message: "Login success",
 		User:    token,
 	}, nil
 }
@@ -115,8 +125,8 @@ func (sr *sqlUserRepo) GetUser(ctx context.Context, id string) (*response.Generi
 	row := stmt.QueryRowContext(ctx, id)
 	user := &model.User{}
 
-	if err = row.Scan(&user.UserID, &user.Name, &user.Email, &user.UserIdentifier, &user.UserPassword,
-		&user.DateCreated, &user.UserModify, &user.DateModify); err != nil {
+	if err = row.Scan(&user.Nombre, &user.PersonaID, &user.Correo, &user.Contrasena, &user.Celular,
+		&user.Apellido, &user.Direccion); err != nil {
 		return &response.GenericUserResponse{Error: err.Error()}, err
 	}
 
@@ -146,8 +156,8 @@ func (sr *sqlUserRepo) GetUsers(ctx context.Context) (*response.GenericUserRespo
 	var users []*model.User
 	for row.Next() {
 		var user = &model.User{}
-		if err = row.Scan(&user.UserID, &user.Name, &user.Email, &user.UserIdentifier, &user.UserPassword,
-			&user.DateCreated, &user.UserModify, &user.DateModify); err != nil {
+		if err = row.Scan(&user.Nombre, &user.PersonaID, &user.Correo, &user.Contrasena, &user.Celular,
+			&user.Apellido, &user.Direccion); err != nil {
 			return &response.GenericUserResponse{Error: err.Error()}, err
 		}
 		users = append(users, user)
