@@ -23,7 +23,7 @@ CREATE TABLE `tblpersonas` (
                                `celular` varchar(20) DEFAULT NULL,
                                `correo` varchar(100) NOT NULL,
                                `usuario` varchar(50) DEFAULT NULL,
-                               `contrasena` binary(64) NOT NULL,
+                               `contrasena` varchar(50) NOT NULL,
                                `sesion_activa` tinyint(1) DEFAULT 1,
                                `direccion` varchar(255) DEFAULT NULL,
                                `imagen_firma` blob NOT NULL,

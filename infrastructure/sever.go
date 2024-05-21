@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,11 +10,11 @@ import (
 
 	"github.com/jnates/smartOshApi/infrastructure/database"
 	"github.com/jnates/smartOshApi/infrastructure/kit/enum"
-
 	routes "github.com/jnates/smartOshApi/infrastructure/routes"
 
 	"github.com/go-chi/chi"
 	chiMiddleware "github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"github.com/rs/zerolog/log"
 )
 
@@ -32,6 +33,15 @@ func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // newServer initialized a Routes Server with configuration.
 func newServer(port string, conn *database.DataDB) *Server {
 	router := chi.NewRouter()
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{enum.CorsUrl},
+		AllowedMethods:   []string{enum.MethodGet, enum.MethodPost, enum.MethodPut, enum.MethodDelete, enum.MethodOptions},
+		AllowedHeaders:   []string{enum.Accept, enum.Authorization, enum.ContentType, enum.XCSRFToken},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
+
 	router.Use(chiMiddleware.RequestID)
 	router.Use(chiMiddleware.RealIP)
 	router.Use(chiMiddleware.Logger)
@@ -70,7 +80,7 @@ func (srv *Server) Start() {
 	log.Info().Msg("Starting API cmd")
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal().Msgf("Could not listen on %s rv due to %s rv", srv.Addr, err.Error())
 		}
 	}()

@@ -1,25 +1,27 @@
 package persistence
 
 const (
-	InsertUser = `INSERT INTO public.users (
-        user_name,
-        user_identifier,
-        user_email,
-        user_password,
-        user_type_identifier
-    ) VALUES ($1, $2, $3, $4, $5)`
+	InsertUser = `INSERT INTO tblpersonas (
+        persona_id,                 
+        nombre,
+        apellido,
+        telefono,
+        celular,
+        correo,
+        usuario,
+        contrasena,
+        sesion_activa,
+        direccion,
+        imagen_firma,
+        administrador
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
-	SelectUser = `SELECT user_id, user_name, user_identifier,
-        user_email, user_password, user_type_identifier
-    FROM public.users
-    WHERE user_id = $1`
+	SelectUser = `SELECT nombre, persona_id, correo, contrasena, celular, apellido, direccion
+    FROM tblpersonas
+    WHERE persona_id = ?`
 
-	SelectLoginUser = `SELECT user_id, user_name, user_identifier,
-        user_email, user_password, user_type_identifier
-    FROM public.users
-    WHERE user_name = $1`
+	SelectLoginUser = `SELECT correo, contrasena, celular FROM tblpersonas WHERE correo = ? OR celular = ?`
 
-	SelectUsers = `SELECT user_id, user_name, user_identifier,
-        user_email, user_password, user_type_identifier
-    FROM public.users`
+	SelectUsers = `SELECT nombre, persona_id, correo, contrasena, celular, apellido, direccion
+    FROM tblpersonas`
 )

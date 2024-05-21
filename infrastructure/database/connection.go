@@ -6,7 +6,7 @@ import (
 	"github.com/jnates/smartOshApi/infrastructure/kit/enum"
 	"os"
 
-	// registering database driver
+	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 )
@@ -33,7 +33,7 @@ func getConnection() (*sql.DB, error) {
 	DBPassword := os.Getenv(enum.DBPassword)
 	DBName := os.Getenv(enum.DBName)
 	DBPort := os.Getenv(enum.DBPort)
-	uri := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", DBHost, DBPort, DBUser, DBName, DBPassword)
+	uri := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", DBUser, DBPassword, DBHost, DBPort, DBName)
 
 	db, err := sql.Open(DBDriver, uri)
 	if err != nil {
