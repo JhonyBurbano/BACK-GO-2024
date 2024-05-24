@@ -22,4 +22,5 @@ const (
 	Authorization string = "Authorization"
 	ContentType   string = "Content-Type"
 	XCSRFToken    string = "X-CSRF-Token"
+	Link          string = "Link"
 )

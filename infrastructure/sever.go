@@ -37,7 +37,7 @@ func newServer(port string, conn *database.DataDB) *Server {
 		AllowedOrigins:   []string{enum.CorsUrl},
 		AllowedMethods:   []string{enum.MethodGet, enum.MethodPost, enum.MethodPut, enum.MethodDelete, enum.MethodOptions},
 		AllowedHeaders:   []string{enum.Accept, enum.Authorization, enum.ContentType, enum.XCSRFToken},
-		ExposedHeaders:   []string{"Link"},
+		ExposedHeaders:   []string{enum.Link},
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
