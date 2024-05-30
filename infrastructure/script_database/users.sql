@@ -29,3 +29,51 @@ CREATE TABLE `tblpersonas` (
                                `imagen_firma` blob NOT NULL,
                                `administrador` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tblrolisomodulo`
+--
+
+CREATE TABLE `tblrolisomodulo` (
+  `iId_RolIsoModulo` int(11) NOT NULL,
+  `vCodigo` varchar(8) DEFAULT NULL,
+  `vDescripcion` varchar(50) DEFAULT NULL,
+  `iId_Estado` int(11) DEFAULT NULL COMMENT 'Activo, Inactivo'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Indices de la tabla `tblrolisomodulo`
+--
+ALTER TABLE `tblrolisomodulo`
+  ADD PRIMARY KEY (`iId_RolIsoModulo`);
+
+-- AUTO_INCREMENT de la tabla `tblrolisomodulo`
+--
+ALTER TABLE `tblrolisomodulo`
+  MODIFY `iId_RolIsoModulo` int(11) NOT NULL AUTO_INCREMENT;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tblprivilegios`
+--
+
+CREATE TABLE `tblprivilegios` (
+  `codigo_personalizado` varchar(50) NOT NULL,
+  `iId_privilegios` int(8) NOT NULL,
+  `nombre` varchar(50) NOT NULL,
+  `descripcion` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Indices de la tabla `tblprivilegios`
+--
+ALTER TABLE `tblprivilegios`
+  ADD PRIMARY KEY (`iId_privilegios`);
+
+-- AUTO_INCREMENT de la tabla `tblprivilegios`
+--
+ALTER TABLE `tblprivilegios`
+  MODIFY `iId_privilegios` int(8) NOT NULL AUTO_INCREMENT;

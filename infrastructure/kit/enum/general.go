@@ -1,11 +1,13 @@
 package enum
 
 const (
-	BasePath     string = "/api/smartosh"
-	BasePathUser string = "/api/smartosh/users"
-	App          string = "smartosh"
-	Location     string = "Location"
-	EmptyString  string = ""
+	BasePath           string = "/api/smartosh"
+	BasePathUser       string = "/api/smartosh/users"
+	BasePathRole       string = "/api/smartosh/roles"
+	BasePathPrivileges string = "/api/smartosh/privileges"
+	App                string = "smartosh"
+	Location           string = "Location"
+	EmptyString        string = ""
 )
 
 const (

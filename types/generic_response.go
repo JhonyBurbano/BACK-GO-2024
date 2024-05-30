@@ -19,6 +19,12 @@ type GenericUserResponse struct {
 	Error   string      `json:"error,omitempty"`
 }
 
+type GenericRoleResponse struct {
+	Message string      `json:"message"`
+	Role    interface{} `json:"data,omitempty"`
+	Error   string      `json:"error,omitempty"`
+}
+
 // TokenResponse representa la estructura de la respuesta de un token JWT.
 type TokenResponse struct {
 	Token     string `json:"token"`
